@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const AddPatients = () => {
-  const [patient, setPatient] = useState({ name: "", age: "", gender: "" });
+  const [formData, setFormData] = useState({ name: "", age: "", gender: "" });
+  const axiosPublic = useAxiosPublic();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPatient((prevState) => ({ ...prevState, [name]: value }));
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const from = location.state?.from?.pathname || "/";
@@ -15,28 +17,26 @@ const AddPatients = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(patient);
-    navigate(from, { replace: true });
-    Swal.fire({
-      title: "Patient file has been created",
-      icon: "success",
-      showClass: {
-        popup: `
-    animate__animated
-    animate__fadeInUp
-    animate__faster
-  `,
-      },
-    });
-    // try {
-    //   const response = await axios.post(
-    //     "http://localhost:5000/patients",
-    //     patient
-    //   );
-    //   console.log("Patient added:", response.data);
-    // } catch (error) {
-    //   console.error("There was an error adding the patient:", error);
-    // }
+    // console.log(formData);
+
+    const patient = {
+      name: formData.name,
+      age: formData.age,
+      gender: formData.gender,
+    };
+
+    const addRes = await axiosPublic.post("/newPatient", patient);
+    console.log(addRes.data);
+    if (addRes.data.insertedId) {
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: `New patient file added`,
+        showConfirmButton: false,
+        timer: 3500,
+      });
+      navigate(from, { replace: true });
+    }
   };
 
   return (
@@ -56,7 +56,7 @@ const AddPatients = () => {
             type="text"
             name="name"
             id="name"
-            value={patient.name}
+            value={formData.name}
             onChange={handleChange}
             placeholder="Name"
             className="input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -73,7 +73,7 @@ const AddPatients = () => {
             type="number"
             name="age"
             id="age"
-            value={patient.age}
+            value={formData.age}
             onChange={handleChange}
             placeholder="Age"
             className="input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -90,7 +90,7 @@ const AddPatients = () => {
             type="text"
             name="gender"
             id="gender"
-            value={patient.gender}
+            value={formData.gender}
             onChange={handleChange}
             placeholder="Gender"
             className="input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

@@ -4,6 +4,7 @@ import Root from "../layouts/Root";
 import Home from "../pages/Home/Home";
 import AddPatients from "../pages/Add_Patients/AddPatients";
 import AllPatients from "../pages/All_Patients/AllPatients";
+import Patients from "../pages/All_Patients/Patients";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,12 @@ export const router = createBrowserRouter([
       {
         path: "/all-patient",
         element: <AllPatients></AllPatients>,
+      },
+      {
+        path: "/patients/:id",
+         loader: ({ params }) =>
+          fetch(`https://neuro-path-server.vercel.app/patients?id=${params.id}`),
+        element: <Patients></Patients>,
       },
     ],
   },
