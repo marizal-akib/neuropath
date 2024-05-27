@@ -5,6 +5,7 @@ import Home from "../pages/Home/Home";
 import AddPatients from "../pages/Add_Patients/AddPatients";
 import AllPatients from "../pages/All_Patients/AllPatients";
 import Patients from "../pages/All_Patients/Patients";
+import IschemicStroke from "../pages/AcuteManagement/IschemicStroke";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
           fetch(`https://neuro-path-server.vercel.app/patients?id=${params.id}`),
         element: <Patients></Patients>,
       },
+      {
+        path:"/ischemic/:patientsId/:patientsName",
+        element:<IschemicStroke></IschemicStroke>,
+      }
     ],
   },
 ]);

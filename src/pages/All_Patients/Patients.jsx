@@ -20,7 +20,7 @@ const Patients = () => {
             Acute Management Pathways
           </h3>
           <ul className="mb-4 space-y-2">
-            <Link to={"/ischemic"}>
+            <Link to={`/ischemic/${_id}/${name}`}>
               <button className="text-blue-600 hover:text-blue-800">
                 Ischemic Stroke
               </button>
