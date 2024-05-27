@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from 'axios'; // Ensure you have axios or another HTTP client installed
+import { useNavigate, useParams } from "react-router-dom";
+
 import camelCase from "lodash.camelcase";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 const IschemicStroke = () => {
   const [step, setStep] = useState(1);
   const { patientsId, patientsName } = useParams();
   const [results, setResults] = useState({});
   const [nihssScore, setNihssScore] = useState("");
+  const axiosPublic = useAxiosPublic();
+  const from = location.state?.from?.pathname || `/patients/${patientsId}`;
+  const navigate = useNavigate();
 
   const handleNextStep = (result, nextStep) => {
     setResults(prevResults => ({ patientId: patientsId, patientName: patientsName, ...prevResults, ...result }));
@@ -37,12 +42,18 @@ const IschemicStroke = () => {
     console.log(camelCaseResults);
     // console.log(finalResults);
 
-    // try {
-    //   await axios.post('YOUR_API_ENDPOINT_HERE', { results: finalResults });
-    //   alert('Assessment submitted successfully!');
-    // } catch (error) {
-    //   console.error('Error submitting assessment:', error);
-    // }
+    const addRes = await axiosPublic.post("/ischemic", camelCaseResults);
+    console.log(addRes.data);
+    if (addRes.data.insertedId) {
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: `Assessment file is added`,
+        showConfirmButton: false,
+        timer: 3500,
+      });
+      navigate(from, { replace: true });
+    }
   };
 
   return (

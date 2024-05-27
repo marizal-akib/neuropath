@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
-
+// {Object.entries(haemorrhagicResults).map(([key, value]) => (
+//   <li key={key} className="text-gray-600">
+//     <strong>{key}:</strong> {value}
+//   </li>
 const AddPatients = () => {
   const [formData, setFormData] = useState({ name: "", age: "", gender: "" });
   const axiosPublic = useAxiosPublic();

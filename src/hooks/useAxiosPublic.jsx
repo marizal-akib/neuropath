@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosPublic = axios.create({
-  baseURL: "https://neuro-path-server.vercel.app",
+  baseURL: "https://brainpath.vercel.app",
 });
 
 const useAxiosPublic = () => {
