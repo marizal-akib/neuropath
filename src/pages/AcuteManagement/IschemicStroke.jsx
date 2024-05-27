@@ -1,34 +1,47 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-// import api from '../services/api'; // Ensure you have your API services set up
+import axios from 'axios'; // Ensure you have axios or another HTTP client installed
+import camelCase from "lodash.camelcase";
 
 const IschemicStroke = () => {
   const [step, setStep] = useState(1);
   const { patientsId, patientsName } = useParams();
-  const [assessment, setAssessment] = useState({ patientsId, results: {} });
+  const [results, setResults] = useState({});
   const [nihssScore, setNihssScore] = useState("");
+
+  const handleNextStep = (result, nextStep) => {
+    setResults(prevResults => ({ patientId: patientsId, patientName: patientsName, ...prevResults, ...result }));
+    setStep(nextStep);
+  };
 
   useEffect(() => {
     // Fetch initial data if needed
   }, [patientsId]);
 
-  const handleNextStep = (result, nextStep) => {
-    const updatedResults = { ...assessment.results, ...result };
-    setAssessment({ ...assessment, results: updatedResults });
-    setStep(nextStep);
-  };
-
   const handlePreviousStep = (prevStep) => {
     setStep(prevStep);
   };
 
+  const convertKeysToCamelCase = (obj) => {
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[camelCase(key)] = obj[key];
+      return acc;
+    }, {});
+  };
+
   const handleSubmitAssessment = async () => {
-    // Submit assessment logic here
+    const finalResults = { ...results };
+ 
+    const camelCaseResults = convertKeysToCamelCase(finalResults);
+
+    console.log(camelCaseResults);
+    // console.log(finalResults);
+
     // try {
-    //   await api.addAssessment(assessment);
-    //   console.log('Assessment saved:', assessment);
+    //   await axios.post('YOUR_API_ENDPOINT_HERE', { results: finalResults });
+    //   alert('Assessment submitted successfully!');
     // } catch (error) {
-    //   console.error('Error saving assessment:', error);
+    //   console.error('Error submitting assessment:', error);
     // }
   };
 
@@ -70,31 +83,30 @@ const IschemicStroke = () => {
               </div>
             </div>
           )}
-          {step === 2 &&
-            assessment.results["Suspected Acute Stroke"] === "Yes" && (
-              <div className="text-center">
-                <p className="mb-2 text-lg text-text-primary font-bold">
-                  Perform Non-Contrast CT Head
-                </p>
-                <p className="mb-4 text-text-secondary font-semibold">
-                  This imaging is used to determine if there is a haemorrhage.
-                </p>
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() =>
-                    handleNextStep({ "Non-Contrast CT Head": "Done" }, 3)
-                  }
-                >
-                  Proceed
-                </button>
-                <button
-                  className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ml-4"
-                  onClick={() => handlePreviousStep(1)}
-                >
-                  Previous
-                </button>
-              </div>
-            )}
+          {step === 2 && results["Suspected Acute Stroke"] === "Yes" && (
+            <div className="text-center">
+              <p className="mb-2 text-lg text-text-primary font-bold">
+                Perform Non-Contrast CT Head
+              </p>
+              <p className="mb-4 text-text-secondary font-semibold">
+                This imaging is used to determine if there is a haemorrhage.
+              </p>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() =>
+                  handleNextStep({ "Non-Contrast CT Head": "Done" }, 3)
+                }
+              >
+                Proceed
+              </button>
+              <button
+                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ml-4"
+                onClick={() => handlePreviousStep(1)}
+              >
+                Previous
+              </button>
+            </div>
+          )}
           {step === 3 && (
             <div className="text-center">
               <p className="mb-4">Hemorrhage Present?</p>
@@ -199,7 +211,7 @@ const IschemicStroke = () => {
               </button>
             </div>
           )}
-          {step === 6 && assessment.results["NIHSS Score"] >= 6 && (
+          {step === 6 && results["NIHSS Score"] >= 6 && (
             <div className="text-center">
               <p className="mb-2 text-lg text-text-primary font-bold">
                 Perform a CT Angiography (CTA) to check for Large Vessel
@@ -248,13 +260,13 @@ const IschemicStroke = () => {
             <div className="text-center">
               <p className="mb-4">Final Decision:</p>
               <ul>
-                {Object.entries(assessment.results).map(
-                  ([key, value], index) => (
+                {Object.entries(results)
+                  .filter(([key]) => key !== 'patientId' && key !== 'patientName')
+                  .map(([key, value], index) => (
                     <li key={index}>
                       {key}: {value}
                     </li>
-                  )
-                )}
+                  ))}
               </ul>
               <button
                 className="bg-blue-500 hover:bg-blue-700 mt-4 text-white font-bold py-2 px-4 rounded"
@@ -268,11 +280,13 @@ const IschemicStroke = () => {
         <div className="w-full lg:w-1/4 p-4 bg-gray-100 border-l-2 border-gray-300">
           <h3 className="text-xl font-bold mb-4">Previous Answers</h3>
           <ul>
-            {Object.entries(assessment.results).map(([key, value], index) => (
-              <li key={index} className="mb-2">
-                <span className="font-semibold">{key}:</span> {value}
-              </li>
-            ))}
+            {Object.entries(results)
+              .filter(([key]) => key !== 'patientId' && key !== 'patientName')
+              .map(([key, value], index) => (
+                <li key={index} className="mb-2">
+                  <span className="font-semibold">{key}:</span> {value}
+                </li>
+              ))}
           </ul>
         </div>
       </div>
